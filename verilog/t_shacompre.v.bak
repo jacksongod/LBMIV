@@ -1,0 +1,72 @@
+module t_shacompre();
+   
+   //declairng input and output regs and wires	   
+   reg		rst;
+   reg		clk;
+   reg [31:0] warray; 
+   reg [31:0]      ckey;
+   reg [31:0]       ain;
+   reg [31:0]       bin;
+   reg [31:0]       cin;
+   reg [31:0]       din;
+   reg [31:0]       ein;
+   reg [31:0]       fin;
+   reg [31:0]       gin;
+   reg [31:0]       hin;
+   wire [31:0]       aout;
+   wire [31:0]       bout;
+   wire [31:0]       cout;
+   wire [31:0]       dout;
+   wire [31:0]       eout;
+   wire [31:0]       fout;
+   wire [31:0]       gout;
+   wire [31:0]       hout;
+
+   //instatiating UUT	 
+  shacompre shacompre(.clk(clk),
+	                       .rst(rst),
+	                       .ckey(ckey),
+						   .warray(warray),
+						   .ain(ain),   
+	                       .bin(bin),
+						   .cin(cin),
+						   .din(din),
+						   .ein(ein),
+						   .fin(fin),
+						   .gin(gin),
+						   .hin(hin),
+						   .aout(aout),
+	                       .bout(bout),
+						   .cout(cout),
+						   .dout(dout),
+						   .eout(eout),
+						   .fout(fout),
+						   .gout(gout),
+						   .hout(hout)
+						   ); 
+   //creating clock
+   initial clk=1'b0;
+   always @(clk) clk<= #5 ~clk;
+   
+   //assigning inputs 
+   initial begin
+       rst = 1'b1; 
+       ckey = 32'h982f8a42;
+	   warray = 32'h6f6c6568;
+	   ain = 32'h67e6096a;
+       bin = 32'h85ae67bb;
+       cin = 32'h72f36e3c;
+       din = 32'h3af54fa5;
+       ein = 32'h7f520e51;
+       fin = 32'h8c68059b;
+       gin = 32'habd9831f;
+       hin = 32'h19cde05b;
+     //  #11 rst = 1'b0;
+     //  #10 valid = 1'b1;
+    end
+   //force simulation end
+   initial begin
+       #15000 $stop; 
+   end
+   
+endmodule
