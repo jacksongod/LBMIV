@@ -33,6 +33,8 @@ module sha256_512top #(parameter CHUNKSIZE = 512)(
 
    wire [31:0] hash_update[0:7];
    wire [31:0] hash_update2[0:7];
+   wire [31:0] hash_ori[0:7];
+   wire [31:0] hash_ori2[0:7];
 
   // reg startreg;
     // defining hash localparams
@@ -76,12 +78,20 @@ module sha256_512top #(parameter CHUNKSIZE = 512)(
 						   .final_eout(hashout[4]),
 						   .final_fout(hashout[5]),
 						   .final_gout(hashout[6]),
-						   .final_hout(hashout[7])
+						   .final_hout(hashout[7]),
+						   .ori_ahash(hash_ori[0]),
+						   .ori_bhash(hash_ori[1]),
+						   .ori_chash(hash_ori[2]),
+						   .ori_dhash(hash_ori[3]),
+						   .ori_ehash(hash_ori[4]),
+						   .ori_fhash(hash_ori[5]),
+						   .ori_ghash(hash_ori[6]),
+						   .ori_hhash(hash_ori[7])
 						   ); 
 	 genvar j;					   
 	 generate for (j=0; j<8; j=j+1) begin : updatehash
-       assign hash_update[j] = hashout[j] + hash_value[j];
-       assign finalout[j] = hash_update[j] + hash_update2[j];
+       assign hash_update[j] = hashout[j] + hash_ori[j];
+       assign finalout[j] = hash_ori2[j] + hash_update2[j];
    end endgenerate
 
 
@@ -103,7 +113,15 @@ module sha256_512top #(parameter CHUNKSIZE = 512)(
 						   .final_eout(hash_update2[4]),
 						   .final_fout(hash_update2[5]),
 						   .final_gout(hash_update2[6]),
-						   .final_hout(hash_update2[7])
+						   .final_hout(hash_update2[7]),
+						   .ori_ahash(hash_ori2[0]),
+						   .ori_bhash(hash_ori2[1]),
+						   .ori_chash(hash_ori2[2]),
+						   .ori_dhash(hash_ori2[3]),
+						   .ori_ehash(hash_ori2[4]),
+						   .ori_fhash(hash_ori2[5]),
+						   .ori_ghash(hash_ori2[6]),
+						   .ori_hhash(hash_ori2[7])
 						   ); 
 						   
 		assign final_hout = {finalout[0],finalout[1],finalout[2],finalout[3],finalout[4],finalout[5],finalout[6],finalout[7]};

@@ -26,7 +26,15 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
    output [31:0] final_eout,
    output [31:0] final_fout,
    output [31:0] final_gout,
-   output [31:0] final_hout
+   output [31:0] final_hout,
+   output [31:0] ori_ahash,
+   output [31:0] ori_bhash,
+   output [31:0] ori_chash, 
+   output [31:0] ori_dhash,
+   output [31:0] ori_ehash,
+   output [31:0] ori_fhash,
+   output [31:0] ori_ghash,
+   output [31:0] ori_hhash
    //input  [5:0]		fpnum,
 
 
@@ -201,6 +209,7 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 	   wire [31:0] s1  ;
 	   wire [31:0] aout,bout,cout,dout,eout,fout,gout,hout;
 	   reg [31:0] aoutreg,boutreg,coutreg,doutreg,eoutreg,foutreg,goutreg,houtreg;
+	   reg [31:0] ori_a,ori_b,ori_c,ori_d,ori_e,ori_f,ori_g,ori_h;
 	   wire [31:0] ain,bin,cin,din,ein,fin,gin,hin;
 	 //  reg [31:0] aoutreg,boutreg,coutreg,din,ein,fin,gin,hin;
 	   reg [31:0] wreg [0:63-l];
@@ -214,8 +223,19 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
       foutreg  <= r_reset ? 31'h0 : fout;
       goutreg  <= r_reset ? 31'h0 : gout;
       houtreg  <= r_reset ? 31'h0 : hout;  
+      ori_a <= r_reset? 31'h0 : init_ain;
       end
 	   if (l==0) begin
+	     always @(posedge clk) begin 
+	       ori_a <= r_reset? 31'h0 : init_ain;
+	       ori_b <= r_reset? 31'h0 : init_bin;
+	       ori_c <= r_reset? 31'h0 : init_cin;
+	       ori_d <= r_reset? 31'h0 : init_din;
+	       ori_e <= r_reset? 31'h0 : init_ein;
+	       ori_f <= r_reset? 31'h0 : init_fin;
+	       ori_g <= r_reset? 31'h0 : init_gin;
+	       ori_h <= r_reset? 31'h0 : init_hin;
+	     end
 	     for (k=0;k<64;k=k+1) begin
 	       always @(posedge clk) begin 
 	       wreg[k] <= r_reset? 31'h0: w[k];
@@ -252,6 +272,16 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 						   ); */
 	   end
 	   else begin 
+	     always @(posedge clk) begin 
+	       ori_a <= r_reset? 31'h0 : compreloop[l-1].ori_a;
+	       ori_b <= r_reset? 31'h0 : compreloop[l-1].ori_b;
+	       ori_c <= r_reset? 31'h0 : compreloop[l-1].ori_c;
+	       ori_d <= r_reset? 31'h0 : compreloop[l-1].ori_d;
+	       ori_e <= r_reset? 31'h0 : compreloop[l-1].ori_e;
+	       ori_f <= r_reset? 31'h0 : compreloop[l-1].ori_f;
+	       ori_g <= r_reset? 31'h0 : compreloop[l-1].ori_g;
+	       ori_h <= r_reset? 31'h0 : compreloop[l-1].ori_h;
+	     end
 	     for (k=0;k<64-l;k=k+1) begin
 	       always @(posedge clk) begin
 	     wreg[k] <= r_reset? 31'h0: compreloop[l-1].wreg[k+1];
@@ -309,6 +339,14 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 						   .hout(hout)
 						   ); 
   end endgenerate
+ assign ori_ahash = compreloop[63].ori_a;
+ assign ori_bhash = compreloop[63].ori_b;
+ assign ori_chash = compreloop[63].ori_c;
+ assign ori_dhash = compreloop[63].ori_d;
+ assign ori_ehash = compreloop[63].ori_e;
+ assign ori_fhash = compreloop[63].ori_f;
+ assign ori_ghash = compreloop[63].ori_g;
+ assign ori_hhash = compreloop[63].ori_h;
  assign final_aout = compreloop[63].aoutreg;
  assign final_bout = compreloop[63].boutreg;
  assign final_cout = compreloop[63].coutreg;
