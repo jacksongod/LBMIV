@@ -166,14 +166,14 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
   end   */
 
  genvar j;
-   generate for (j=0; j<64; j=j+1) begin : pipe1
+  /* generate for (j=0; j<64; j=j+1) begin : pipe1
       
        always @(posedge clk) begin
         wfillreg[j]  <= r_reset ? 1'b0 : w[j];
     
       end
    
-   end endgenerate
+   end endgenerate*/
 
    
    //assign final_chunk = {8'h0,8'h02,488'h0,8'h80,memorychunk};  //pad chunk with length and bit'1'
