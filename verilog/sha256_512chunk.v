@@ -223,7 +223,7 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
       foutreg  <= r_reset ? 31'h0 : fout;
       goutreg  <= r_reset ? 31'h0 : gout;
       houtreg  <= r_reset ? 31'h0 : hout;  
-      ori_a <= r_reset? 31'h0 : init_ain;
+     // ori_a <= r_reset? 31'h0 : init_ain;
       end
 	   if (l==0) begin
 	     always @(posedge clk) begin 
