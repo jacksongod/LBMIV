@@ -1,26 +1,8 @@
 /*****************************************************************************/
-//
-// Module          : vadd.vpp
-// Revision        :  Revision: 1.2  
-// Last Modified On:  Date: 2013/01/23 17:31:48  
-// Last Modified By:  Author: gedwards  
-//
-//-----------------------------------------------------------------------------
-//
-// Original Author : gedwards
-// Created On      : Wed Oct 10 09:26:08 2007
-//
-//-----------------------------------------------------------------------------
-//
-// Description     : Sample personality vector add unit
-//
-//-----------------------------------------------------------------------------
-//
-// Copyright (c) 2007-2012 : created by Convey Computer Corp. This model is the
-// confidential and proprietary property of Convey Computer Corp.
+
 //
 /*****************************************************************************/
-/*  Id: vadd.vpp,v 1.2 2013/01/23 17:31:48 gedwards Exp   */
+
 
 `timescale 1 ns / 1 ps
 
@@ -29,6 +11,14 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
    input		reset,
   // input valid,
    input  [CHUNKSIZE-1:0] memorychunk,
+   input [31:0] init_ain,
+   input [31:0] init_bin,
+   input [31:0] init_cin,
+   input [31:0] init_din,
+   input [31:0] init_ein,
+   input [31:0] init_fin,
+   input [31:0] init_gin,
+   input [31:0] init_hin,
    output [31:0] final_aout,
    output [31:0] final_bout,
    output [31:0] final_cout, 
@@ -354,14 +344,14 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
    //assert_never #(1, 2, "***ERROR ASSERT: unimplemented instruction cracked") a0 (.clk(clk), .reset_n(~reset), .test_expr(r_unimplemented_inst));
 
     // synopsys translate_on
- assign a = hash_value[0];
-   assign b = hash_value[1];
-   assign c = hash_value[2];
-   assign d = hash_value[3];
-   assign e = hash_value[4];
-   assign f = hash_value[5];
-   assign g = hash_value[6];
-   assign h = hash_value[7];
+ assign a = init_ain;
+   assign b = init_bin;
+   assign c = init_cin;
+   assign d = init_din;
+   assign e = init_ein;
+   assign f = init_fin;
+   assign g = init_gin;
+   assign h = init_hin;
    
    
    

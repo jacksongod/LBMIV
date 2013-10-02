@@ -1,8 +1,8 @@
 /*****************************************************************************/
-/*   SHA 256 module testbench, 512bit version                                */ 
-/*   Aishwarya Nagarajan, UW-Madison, ERCBench Researcher                    */
-/*   Inputs: clk, rst, valid,last, first, msg_in (512bits)                   */
-/*   Outputs: ready, msg_out (256 bits)                                      */
+/*   SHA 256                               */ 
+/*                     */
+/*   Inputs:                    */
+/*   Outputs:                                     */
 /*****************************************************************************/
 `timescale 1 ns / 1 ps
 module t_sha_multi_chunks2();
