@@ -5,24 +5,17 @@
 /*   Outputs:                                     */
 /*****************************************************************************/
 `timescale 1 ns / 1 ps
-module t_sha_multi_chunks2();
+module t_sha256_top();
    
    //declairng input and output regs and wires	   
    reg clk, rst;
    reg [511:0] msg_in;
    reg valid;
-   wire [31:0] final_aout;
-   wire [31:0] final_bout;
-   wire [31:0] final_cout; 
-   wire [31:0] final_dout;
-   wire [31:0] final_eout;
-   wire [31:0] final_fout;
-   wire [31:0] final_gout;
-   wire [31:0] final_hout;
+   wire [255:0] final_out;
    //wire ready;
    
    //instatiating UUT	 
-   sha256_512chunk UUT (clk, rst,msg_in,final_aout,final_bout,final_cout,final_dout,final_eout,final_fout,final_gout,final_hout);
+   sha256_512top UUT (clk, rst,msg_in,final_out);
    
    //creating clock
    initial clk=1'b0;
@@ -47,7 +40,7 @@ module t_sha_multi_chunks2();
     // #10 msg_in = 0;
       //   valid = 0;
      //  #5 last = 1'b1; 
-     //  msg_in = 512'h68656c6f77726c64313233353433323268656c6f77726c64313233353433323268656c6f77726c64313233353433323268656c6f77726c643132333534333232;
+     #10  msg_in = 512'h64736464646b7366616c666a6a6b647364736166666a6b6c6a6b7361616b6c6666646a73736a616b6a6b66646c647361616a6b66646c3b73736b6a6664736661;
      //  #640 first = 1'b0;
      //  #5 last = 1'b1; 
      //  msg_in = 512'b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000001_11000000; 

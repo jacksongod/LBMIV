@@ -1,26 +1,8 @@
 /*****************************************************************************/
-//
-// Module          : vadd.vpp
-// Revision        :  Revision: 1.2  
-// Last Modified On:  Date: 2013/01/23 17:31:48  
-// Last Modified By:  Author: gedwards  
-//
-//-----------------------------------------------------------------------------
-//
-// Original Author : gedwards
-// Created On      : Wed Oct 10 09:26:08 2007
-//
-//-----------------------------------------------------------------------------
-//
-// Description     : Sample personality vector add unit
-//
-//-----------------------------------------------------------------------------
-//
-// Copyright (c) 2007-2012 : created by Convey Computer Corp. This model is the
-// confidential and proprietary property of Convey Computer Corp.
+
 //
 /*****************************************************************************/
-/*  Id: vadd.vpp,v 1.2 2013/01/23 17:31:48 gedwards Exp   */
+
 
 `timescale 1 ns / 1 ps
 
@@ -29,6 +11,14 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
    input		reset,
   // input valid,
    input  [CHUNKSIZE-1:0] memorychunk,
+   input [31:0] init_ain,
+   input [31:0] init_bin,
+   input [31:0] init_cin,
+   input [31:0] init_din,
+   input [31:0] init_ein,
+   input [31:0] init_fin,
+   input [31:0] init_gin,
+   input [31:0] init_hin,
    output [31:0] final_aout,
    output [31:0] final_bout,
    output [31:0] final_cout, 
@@ -36,7 +26,15 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
    output [31:0] final_eout,
    output [31:0] final_fout,
    output [31:0] final_gout,
-   output [31:0] final_hout
+   output [31:0] final_hout,
+   output [31:0] ori_ahash,
+   output [31:0] ori_bhash,
+   output [31:0] ori_chash, 
+   output [31:0] ori_dhash,
+   output [31:0] ori_ehash,
+   output [31:0] ori_fhash,
+   output [31:0] ori_ghash,
+   output [31:0] ori_hhash
    //input  [5:0]		fpnum,
 
 
@@ -168,14 +166,14 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
   end   */
 
  genvar j;
-   generate for (j=0; j<64; j=j+1) begin : pipe1
+  /* generate for (j=0; j<64; j=j+1) begin : pipe1
       
        always @(posedge clk) begin
         wfillreg[j]  <= r_reset ? 1'b0 : w[j];
     
       end
    
-   end endgenerate
+   end endgenerate*/
 
    
    //assign final_chunk = {8'h0,8'h02,488'h0,8'h80,memorychunk};  //pad chunk with length and bit'1'
@@ -211,6 +209,7 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 	   wire [31:0] s1  ;
 	   wire [31:0] aout,bout,cout,dout,eout,fout,gout,hout;
 	   reg [31:0] aoutreg,boutreg,coutreg,doutreg,eoutreg,foutreg,goutreg,houtreg;
+	   reg [31:0] ori_a,ori_b,ori_c,ori_d,ori_e,ori_f,ori_g,ori_h;
 	   wire [31:0] ain,bin,cin,din,ein,fin,gin,hin;
 	 //  reg [31:0] aoutreg,boutreg,coutreg,din,ein,fin,gin,hin;
 	   reg [31:0] wreg [0:63-l];
@@ -224,8 +223,19 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
       foutreg  <= r_reset ? 31'h0 : fout;
       goutreg  <= r_reset ? 31'h0 : gout;
       houtreg  <= r_reset ? 31'h0 : hout;  
+     // ori_a <= r_reset? 31'h0 : init_ain;
       end
 	   if (l==0) begin
+	     always @(posedge clk) begin 
+	       ori_a <= r_reset? 31'h0 : init_ain;
+	       ori_b <= r_reset? 31'h0 : init_bin;
+	       ori_c <= r_reset? 31'h0 : init_cin;
+	       ori_d <= r_reset? 31'h0 : init_din;
+	       ori_e <= r_reset? 31'h0 : init_ein;
+	       ori_f <= r_reset? 31'h0 : init_fin;
+	       ori_g <= r_reset? 31'h0 : init_gin;
+	       ori_h <= r_reset? 31'h0 : init_hin;
+	     end
 	     for (k=0;k<64;k=k+1) begin
 	       always @(posedge clk) begin 
 	       wreg[k] <= r_reset? 31'h0: w[k];
@@ -262,6 +272,16 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 						   ); */
 	   end
 	   else begin 
+	     always @(posedge clk) begin 
+	       ori_a <= r_reset? 31'h0 : compreloop[l-1].ori_a;
+	       ori_b <= r_reset? 31'h0 : compreloop[l-1].ori_b;
+	       ori_c <= r_reset? 31'h0 : compreloop[l-1].ori_c;
+	       ori_d <= r_reset? 31'h0 : compreloop[l-1].ori_d;
+	       ori_e <= r_reset? 31'h0 : compreloop[l-1].ori_e;
+	       ori_f <= r_reset? 31'h0 : compreloop[l-1].ori_f;
+	       ori_g <= r_reset? 31'h0 : compreloop[l-1].ori_g;
+	       ori_h <= r_reset? 31'h0 : compreloop[l-1].ori_h;
+	     end
 	     for (k=0;k<64-l;k=k+1) begin
 	       always @(posedge clk) begin
 	     wreg[k] <= r_reset? 31'h0: compreloop[l-1].wreg[k+1];
@@ -319,6 +339,14 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 						   .hout(hout)
 						   ); 
   end endgenerate
+ assign ori_ahash = compreloop[63].ori_a;
+ assign ori_bhash = compreloop[63].ori_b;
+ assign ori_chash = compreloop[63].ori_c;
+ assign ori_dhash = compreloop[63].ori_d;
+ assign ori_ehash = compreloop[63].ori_e;
+ assign ori_fhash = compreloop[63].ori_f;
+ assign ori_ghash = compreloop[63].ori_g;
+ assign ori_hhash = compreloop[63].ori_h;
  assign final_aout = compreloop[63].aoutreg;
  assign final_bout = compreloop[63].boutreg;
  assign final_cout = compreloop[63].coutreg;
@@ -354,14 +382,14 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
    //assert_never #(1, 2, "***ERROR ASSERT: unimplemented instruction cracked") a0 (.clk(clk), .reset_n(~reset), .test_expr(r_unimplemented_inst));
 
     // synopsys translate_on
- assign a = hash_value[0];
-   assign b = hash_value[1];
-   assign c = hash_value[2];
-   assign d = hash_value[3];
-   assign e = hash_value[4];
-   assign f = hash_value[5];
-   assign g = hash_value[6];
-   assign h = hash_value[7];
+ assign a = init_ain;
+   assign b = init_bin;
+   assign c = init_cin;
+   assign d = init_din;
+   assign e = init_ein;
+   assign f = init_fin;
+   assign g = init_gin;
+   assign h = init_hin;
    
    
    
