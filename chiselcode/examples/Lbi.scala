@@ -7,7 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.ParIterableLike
 class LBio(n: Int) extends Bundle {
    val myinput = UInt(INPUT,n)
-   val myoutput = Vec.fill(140){UInt (OUTPUT,6)}
+   val myoutput = UInt (OUTPUT,n)
 
 }
 
@@ -38,10 +38,10 @@ class Lbi(q: Int,n:Int,m :Int ) extends Module{
       val temprow = mask(rndvec,datavec,m)
        resultvec(i) := temprow.reduceLeft(_+_)//Range(0,840).map(i=>temprow(i)).reduceLeft(_+_)
       
-      io.myoutput(i) := resultvec(i)
+     // io.myoutput(i) := resultvec(i)
   }
   
- //io.myoutput := resultvec//resultvec.reduceLeft(Cat(_,_))   
+ io.myoutput := resultvec.reduceLeft(Cat(_,_))   
  
 
 }
