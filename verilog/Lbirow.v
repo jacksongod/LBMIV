@@ -1,11 +1,11 @@
-module Lbirow #(parameter INPUTSIZE = 1680,
+module Lbirow #(parameter INPUTSIZE = 840,
                        parameter RANDOMSIZE = 96
                        )(
    input		reset,
    input		clk,
    input [INPUTSIZE-1:0]      msg_in, 
    input                      msgin_vld,
-   output [INPUTSIZE/2-1:0]       msg_out,
+   output [INPUTSIZE-1:0]       msg_out,
    output                       msgout_vld,
    
    input [RANDOMSIZE-1:0]       randomin
@@ -15,30 +15,59 @@ module Lbirow #(parameter INPUTSIZE = 1680,
 
    //input  [11:0]	csr_ldst_thld
 );
+  parameter RANDOMSIZE6 = RANDOMSIZE/6;
+  parameter PARTITION_SIZE = 53;
+  parameter LEFTOVER_SIZE = 8;
    localparam IDLE   = 2'd0;
-   localparam RUNNNING = 2'd1;
+   localparam RUNNING = 2'd1;
    localparam LD_OP2 = 2'd2;
    localparam ST_RES = 2'd3;
 
-reg [1:0] c_state , r_state ;
-reg [RANDOMSIZE-1:0]  c_msgin_part,r_msgin_part;
+wire [LEFTOVER+INPUTSIZE-1 : 0] padedinput = {LEFTOVER_SIZE'b0,msg_in}; 
+reg [1:0] r_state ;
+wire [1:0] c_state ;
+reg [RANDOMSIZE-1:0] r_msgin_part [PARTITION_SIZE-1:0];
+wire [RANDOMSIZE-1:0] c_msgin_part [PARTITION_SIZE-1:0];
+wire [5:0] chunk_sum;
+reg [5:0] r_cnt;
+wire [5:0] c_cnt;
 
+genvar i;
+generate for (i=0;i<PARTITION_SIZE; i=i+1) begin :  pt
+   always @(posedge clk) begin
+      r_msgin_part[i] <= r_reset? 0:c_msgin_part[i]; 
+  end
+     assign  c_msgin_part[i] = msgin_vld? padedinput[i*RANDOMSIZE6 +:RANDOMSIZE6]:r_msgin_part[i];
+     
+end endgenerate
+    
 assign r_reset = reset; 
+
    always @(posedge clk) begin
       r_state  <= r_reset ? 0 : c_state;
       r_msgin_part <= r_reset? 0:c_msgin_part; 
+      r_cnt <= r_reset? 0: c_cnt; 
    end
 
 
 
+assign chunk_sum = r_msgin_part[r_cnt][]
+
 always @*
 begin 
-    c_state <= r_state;
+    c_cnt = r_cnt; 
+    c_state = r_state;
     case (r_state)
        IDLE: 
        begin 
          if(msgin_vld == 1'b1) begin 
-           
+           c_state = RUNNING ;
+           c_cnt = 0; 
+         end 
+       end
+       RUNNING:
+       begin 
+         
     
 wire [31:0]s1;
 wire  [31:0]ch;
