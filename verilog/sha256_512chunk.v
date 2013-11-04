@@ -9,7 +9,7 @@
 module sha256_512chunk #(parameter CHUNKSIZE = 512)(
    input		clk,
    input		reset,
-  // input valid,
+   input validin,
    input  [CHUNKSIZE-1:0] memorychunk,
    input [31:0] init_ain,
    input [31:0] init_bin,
@@ -19,6 +19,7 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
    input [31:0] init_fin,
    input [31:0] init_gin,
    input [31:0] init_hin,
+   output validout,
    output [31:0] final_aout,
    output [31:0] final_bout,
    output [31:0] final_cout, 
@@ -213,6 +214,7 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 	   wire [31:0] ain,bin,cin,din,ein,fin,gin,hin;
 	 //  reg [31:0] aoutreg,boutreg,coutreg,din,ein,fin,gin,hin;
 	   reg [31:0] wreg [0:63-l];
+	   reg validreg;
 	   
 	  always @(posedge clk) begin
       aoutreg  <= r_reset ? 31'h0 : aout;
@@ -227,6 +229,7 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
       end
 	   if (l==0) begin
 	     always @(posedge clk) begin 
+		   validreg <= r_reset? 1'b0 : validin;
 	       ori_a <= r_reset? 31'h0 : init_ain;
 	       ori_b <= r_reset? 31'h0 : init_bin;
 	       ori_c <= r_reset? 31'h0 : init_cin;
@@ -273,6 +276,7 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 	   end
 	   else begin 
 	     always @(posedge clk) begin 
+		   validreg <= r_reset? 1'b0 : compreloop[l-1].validreg;
 	       ori_a <= r_reset? 31'h0 : compreloop[l-1].ori_a;
 	       ori_b <= r_reset? 31'h0 : compreloop[l-1].ori_b;
 	       ori_c <= r_reset? 31'h0 : compreloop[l-1].ori_c;
@@ -329,6 +333,7 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 						   .fin(fin),
 						   .gin(gin),
 						   .hin(hin),
+
 						   .aout(aout),
 	             .bout(bout),
 						   .cout(cout),
@@ -339,6 +344,15 @@ module sha256_512chunk #(parameter CHUNKSIZE = 512)(
 						   .hout(hout)
 						   ); 
   end endgenerate
+  
+  
+ /* reg last_validout ;
+  
+  always @(posedge clk) begin
+	     last_validout <= r_reset? 31'h0: compreloop[63].validreg;
+	end */
+     
+  assign validout = compreloop[63].validreg;
  assign ori_ahash = compreloop[63].ori_a;
  assign ori_bhash = compreloop[63].ori_b;
  assign ori_chash = compreloop[63].ori_c;

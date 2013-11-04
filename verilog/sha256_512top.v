@@ -9,9 +9,9 @@
 module sha256_512top #(parameter CHUNKSIZE = 512)(
    input		clk,
    input		reset,
-  // input valid,
+   input valid,
    input  [CHUNKSIZE-1:0] datain,
-   
+   output validoutput,
    output [CHUNKSIZE/2-1:0] final_hout
    //input  [5:0]		fpnum,
 
@@ -30,12 +30,12 @@ module sha256_512top #(parameter CHUNKSIZE = 512)(
 
    wire  [31:0]  hash_value [0:7];
   // reg  [31:0]  next_hash_value [0:7];
-
+   wire valid_interm;
    wire [31:0] hash_update[0:7];
    wire [31:0] hash_update2[0:7];
    wire [31:0] hash_ori[0:7];
    wire [31:0] hash_ori2[0:7];
-
+ wire last_validout ;
   // reg startreg;
     // defining hash localparams
            localparam H0 = 32'h6a09e667;
@@ -62,6 +62,7 @@ module sha256_512top #(parameter CHUNKSIZE = 512)(
    wire [31:0] finalout[0:7];
 	   sha256_512chunk UT0(.clk(clk),
 	                       .reset(reset),
+						    .validin(valid),
 	             .memorychunk(datain),
 						   .init_ain(a),   
 	             .init_bin(b),
@@ -79,6 +80,7 @@ module sha256_512top #(parameter CHUNKSIZE = 512)(
 						   .final_fout(hashout[5]),
 						   .final_gout(hashout[6]),
 						   .final_hout(hashout[7]),
+						   .validout(valid_interm),
 						   .ori_ahash(hash_ori[0]),
 						   .ori_bhash(hash_ori[1]),
 						   .ori_chash(hash_ori[2]),
@@ -100,6 +102,7 @@ module sha256_512top #(parameter CHUNKSIZE = 512)(
 	             .memorychunk({32'h00000200,448'h0,32'h80000000}),
 						   .init_ain(hash_update[0]),   
 	             .init_bin(hash_update[1]),
+				  .validin(valid_interm),
 						   .init_cin(hash_update[2]),
 						   .init_din(hash_update[3]),
 						   .init_ein(hash_update[4]),
@@ -114,6 +117,7 @@ module sha256_512top #(parameter CHUNKSIZE = 512)(
 						   .final_fout(hash_update2[5]),
 						   .final_gout(hash_update2[6]),
 						   .final_hout(hash_update2[7]),
+						   .validout(last_validout),
 						   .ori_ahash(hash_ori2[0]),
 						   .ori_bhash(hash_ori2[1]),
 						   .ori_chash(hash_ori2[2]),
@@ -134,7 +138,15 @@ module sha256_512top #(parameter CHUNKSIZE = 512)(
 
    // ISE can have issues with global wires attached to D(flop)/I(lut) inputs
    
-   
+     
+ 
+  reg  final_validout; 
+  always @(posedge clk) begin
+	     final_validout <= r_reset? 31'h0: last_validout;
+	end 
+	assign validoutput = final_validout; 
+	
+	
    assign r_reset = reset; 
   // FDSE rst (.C(clk),.S(reset),.CE(r_reset),.D(!r_reset),.Q(r_reset)); 
 
