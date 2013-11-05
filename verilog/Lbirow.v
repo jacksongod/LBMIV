@@ -23,22 +23,23 @@ module Lbirow #(parameter INPUTSIZE = 840,
    localparam FINISHED= 2'd2;
    localparam ST_RES = 2'd3;
 
-wire [LEFTOVER_SIZE+INPUTSIZE-1 : 0] padedinput = {LEFTOVER_SIZE'b0,msg_in};  // pad input with enough 0s to make 
+wire [LEFTOVER_SIZE+INPUTSIZE-1 : 0] padedinput = {8'b0,msg_in};  // pad input with enough 0s to make 
                                                                               //input bits multiple of 16
 reg [1:0] r_state ;
-wire [1:0] c_state ;
+reg [1:0] c_state ;
 reg [RANDOMSIZE6-1:0] r_msgin_part [PARTITION_SIZE-1:0];
-wire [RANDOMSIZE6-1:0] c_msgin_part [PARTITION_SIZE-1:0];
+wire[RANDOMSIZE6-1:0] c_msgin_part [PARTITION_SIZE-1:0];
 
 
 wire [5:0] chunk_sum;
 reg [5:0] r_cnt;
-wire [5:0] c_cnt;
+reg [5:0] c_cnt;
 reg [5:0] r_sum ; 
-wire [5:0] c_sum;
+reg [5:0] c_sum;
 wire [5:0]total_round; 
-
-assign total_round = PARTITION_SIZE; 
+wire r_reset; 
+reg valid_res; 
+//assign total_round = PARTITION_SIZE; 
 genvar i;
 generate for (i=0;i<PARTITION_SIZE; i=i+1) begin :  pt
    always @(posedge clk) begin
@@ -51,9 +52,10 @@ end endgenerate
 assign r_reset = reset; 
 
    always @(posedge clk) begin
-      r_state  <= r_reset ? 0 : c_state;
+      r_state  <= r_reset ? 1'b0 : c_state;
+      r_sum <= r_reset? 5'b0: c_sum;
      // r_msgin_part <= r_reset? 0:c_msgin_part; 
-      r_cnt <= r_reset? 0: c_cnt; 
+      r_cnt <= r_reset? 5'b0: c_cnt; 
    end
 
 
@@ -110,22 +112,28 @@ begin
     case (r_state)
        IDLE: 
        begin 
+         c_cnt = 0; 
+        c_sum = 0;
          if(start) begin 
            c_state = RUNNING ;
-           c_cnt = 0; 
+           
          end 
        end
        RUNNING:
        begin 
          c_cnt = r_cnt+1; 
-        if(r_cnt< total_round) begin 
+        if(r_cnt< PARTITION_SIZE-1) begin 
            c_sum = r_sum + chunk_sum;
         end else begin 
+           c_cnt=0;
+           c_sum = r_sum + chunk_sum;
            c_state = FINISHED;
         end 
        end 
        FINISHED : 
+       
        begin 
+        c_cnt = 0;
          valid_res = 1; 
          c_state = IDLE; 
        end
@@ -134,7 +142,7 @@ begin
     endcase 
 end         
 
-wire valid_res; 
+
 
 assign msgrow_out = r_sum;
 assign msgrowout_vld = valid_res; 
