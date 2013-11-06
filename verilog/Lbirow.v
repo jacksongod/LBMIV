@@ -4,7 +4,7 @@ module Lbirow #(parameter INPUTSIZE = 840,
    input		reset,
    input		clk,
    input [INPUTSIZE-1:0]      msg_in, 
-   input                      msgin_vld,
+ //  input                      msgin_vld,
    output [5:0]       msgrow_out,
    output                       msgrowout_vld,
    input  start,
@@ -27,7 +27,8 @@ wire [LEFTOVER_SIZE+INPUTSIZE-1 : 0] padedinput = {8'b0,msg_in};  // pad input w
                                                                               //input bits multiple of 16
 reg [1:0] r_state ;
 reg [1:0] c_state ;
-reg [RANDOMSIZE6-1:0] r_msgin_part [PARTITION_SIZE-1:0];
+wire [RANDOMSIZE6-1:0] r_msgin_part [PARTITION_SIZE-1:0];
+//reg [RANDOMSIZE6-1:0] r_msgin_part [PARTITION_SIZE-1:0];
 wire[RANDOMSIZE6-1:0] c_msgin_part [PARTITION_SIZE-1:0];
 
 
@@ -41,14 +42,16 @@ wire r_reset;
 reg valid_res; 
 //assign total_round = PARTITION_SIZE; 
 genvar i;
-generate for (i=0;i<PARTITION_SIZE; i=i+1) begin :  pt
+/*generate for (i=0;i<PARTITION_SIZE; i=i+1) begin :  pt
    always @(posedge clk) begin
       r_msgin_part[i] <= r_reset? 0:c_msgin_part[i]; 
   end
      assign  c_msgin_part[i] = msgin_vld? padedinput[i*RANDOMSIZE6 +:RANDOMSIZE6]:r_msgin_part[i];
      
+end endgenerate*/
+generate for (i=0;i<PARTITION_SIZE; i=i+1) begin :  pt
+    assign r_msgin_part[i] = padedinput[i*RANDOMSIZE6 +:RANDOMSIZE6];
 end endgenerate
-    
 assign r_reset = reset; 
 
    always @(posedge clk) begin

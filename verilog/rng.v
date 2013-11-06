@@ -74,14 +74,14 @@ reg [36:0] CASR_reg;
 
 //CASR:
 reg[36:0] CASR_varCASR,CASR_outCASR;
-always @(posedge clk or negedge reset)
+always @(posedge clk)
 
    begin
 
 
 
 
-   if (!reset )
+   if (reset )
 
       begin
 
@@ -160,12 +160,12 @@ always @(posedge clk or negedge reset)
 //LFSR:
 reg[42:0] LFSR_varLFSR;
 reg outbitLFSR;
-always @(posedge clk or negedge reset)
+always @(posedge clk )
 
    begin
 
 
-   if (!reset )
+   if (reset )
 
       begin
 
@@ -249,11 +249,11 @@ always @(posedge clk or negedge reset)
 
    end
 //combinate:
-always @(posedge clk or negedge reset)
+always @(posedge clk )
 
    begin
 
-   if (!reset )
+   if (reset )
 
       begin
 
