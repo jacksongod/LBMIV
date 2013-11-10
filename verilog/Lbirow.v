@@ -134,7 +134,6 @@ begin
         end 
        end 
        FINISHED : 
-       
        begin 
         c_cnt = 0;
          valid_res = 1; 
@@ -149,6 +148,7 @@ end
 
 assign msgrow_out = r_sum;
 assign msgrowout_vld = valid_res; 
+
 
 
 
